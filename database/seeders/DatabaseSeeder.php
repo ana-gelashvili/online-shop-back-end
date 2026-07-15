@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Product; // 👈 აუცილებლად შემოგვაქვს პროდუქტის მოდელი
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1. იქმნება სატესტო მომხმარებელი, რომლითაც ფრონტენდიდან (ან Postman-იდან) შეძლებ დალოგინებას
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('password'), // 👈 პაროლი იქნება "password"
         ]);
+
+        // 2. აი ეს მთავარი ხაზი! ავტომატურად ქმნის 50 პროდუქტს და 50 უნიკალურ კატეგორიას
+        Product::factory(50)->create();
     }
 }
