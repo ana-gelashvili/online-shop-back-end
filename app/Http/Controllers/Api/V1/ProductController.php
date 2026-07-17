@@ -16,8 +16,16 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $includes = $this->parseIncludes($request, ['category']);
+        $perPage = (int) $request->query('per_page', 12);
 
-        return ProductResource::collection($this->service->list($includes));
+        $products = $this->service->list(
+            $includes,
+            $request->query('search'),
+            $request->query('category'),
+            $perPage
+        );
+
+        return ProductResource::collection($products);
     }
 
     public function store(StoreProductRequest $request)

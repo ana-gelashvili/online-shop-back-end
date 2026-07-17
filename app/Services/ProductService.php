@@ -3,16 +3,31 @@
 namespace App\Services;
 
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductService
 {
     /**
      * @param  array<int, string>  $includes
      */
-    public function list(array $includes = []): Collection
-    {
-        return Product::with($includes)->get();
+    public function list(
+        array $includes = [],
+        ?string $search = null,
+        ?string $categorySlug = null,
+        int $perPage = 12
+    ): LengthAwarePaginator {
+        return Product::with($includes)
+            ->when($categorySlug, fn ($query, $slug) => $query->whereHas(
+                'category',
+                fn ($category) => $category->where('slug', $slug)
+            ))
+            ->when($search, fn ($query, $search) => $query->where(
+                fn ($inner) => $inner
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+            ))
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**
